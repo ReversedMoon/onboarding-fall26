@@ -80,22 +80,38 @@ class PupJoystick(mjx_env.MjxEnv):
         rad/s (12), unitless (12). Sensor quaternions are wxyz (4,).
         """
         # ===== TODO(student): Build the exact 45-dimensional observation =====
-        raise NotImplementedError(
-            "Stage 3: Build the exact 45-dimensional observation. See docs/03_mjx_environment.md")
+        gyro = data.qvel[3:6]
+        world_down = gravity_in_body_frame(data.qpos[3:7])
+        command = info["command"] 
+        joint_pos = data.qpos[7:] - self._default_pose 
+        joint_vel = data.qvel[6:] 
+        last_act = info["last_act"] 
+
+        array45 = jnp.concatenate([gyro, world_down, command, joint_pos, joint_vel, last_act])
+        noise = jax.random.uniform(info["rng"], (45,), minval = -1, maxval = 1)
+
+        return array45 + noise * self._noise_scale
         # ===== end TODO =====
 
     def _get_termination(self, data: mjx.Data) -> jax.Array:
         """Return scalar bool for upside-down, height <0.12 m, or nonfinite qpos."""
         # ===== TODO(student): Detect falls and invalid simulation states =====
-        raise NotImplementedError(
-            "Stage 3: Detect falls and invalid simulation states. See docs/03_mjx_environment.md")
+        upvector = mjx_env.get_sensor_data(self.mj_model, data, "upvector")
+        upsidedown = jnp.where(upvector[2] < 0, True, False)
+        fall = jnp.where(data.qpos[2] < .12, True, False)
+        not_finite = jnp.where(~jnp.all(jnp.isfinite(data.qpos)), True, False)
+        return upsidedown | fall | not_finite
         # ===== end TODO =====
 
     def sample_command(self, rng: jax.Array) -> jax.Array:
         """Sample (3,) vx,vy,yaw within config ranges, with 10% exactly zero."""
         # ===== TODO(student): Sample a bounded command including standing =====
-        raise NotImplementedError(
-            "Stage 3: Sample a bounded command including standing. See docs/03_mjx_environment.md")
+        key_vel, key_zero = jax.random.split(rng)
+        minimum = jnp.array([-1,-.8,-1.2])
+        maximum = jnp.array([1.5,.8,1.2])
+        command = jax.random.uniform(key_vel, (3,), minval=minimum, maxval=maximum)
+        zeroifier = jax.random.uniform(key_zero) < 0.1
+        return jnp.where(zeroifier, jnp.zeros(3), command)
         # ===== end TODO =====
 
     def _update_feet(self, data: mjx.Data, info: dict) -> tuple:
@@ -136,10 +152,19 @@ class PupJoystick(mjx_env.MjxEnv):
     def step(self, state: mjx_env.State, action: jax.Array) -> mjx_env.State:
         """Advance 0.02 s with (12,) unitless actions; return the same State tree."""
         info = dict(state.info)
+
         # ===== TODO(student): Apply targets, step physics, and assemble scaled rewards =====
-        raise NotImplementedError(
-            "Stage 3: Apply targets, step physics, and assemble scaled rewards. See docs/03_mjx_environment.md")
+        motor_targets = self._default_pose + action * self._config.action_scale
+        data = mjx_env.step(self.mjx_model, state.data, motor_targets, self.n_substeps)
+        info, contact, first_contact = self._update_feet(data, info)
+        done = self._get_termination(data)
+        terms = self._reward_terms(data, done)
+        scaled = {k: v * self._config.reward_config.scales[k] for k, v in terms.items()}
+        reward = jnp.clip(sum(scaled.values()) * self.dt, 0, 10000) 
+        info["last_last_act"] = info["last_act"]
+        info["last_act"] = action
         # ===== end TODO =====
+        
         # Brax wrappers add their own metric keys; update, never replace.
         metrics = {**state.metrics, **scaled}
         info.update(feet_air_time=info["feet_air_time"] * ~contact,
