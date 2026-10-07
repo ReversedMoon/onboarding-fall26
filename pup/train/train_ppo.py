@@ -60,9 +60,20 @@ def train(config_name: str = "cpu_smoke", out: str | Path = "runs/smoke",
         print(json.dumps(row), flush=True)
 
     # ===== TODO(student): Wire the environment, wrappers, randomization and PPO networks =====
-    
-    
-    
+    env = PupJoystick(environment_config)
+    network_factory = functools.partial(
+        networks.make_ppo_networks, **parameters.pop("network_factory"))
+    inference_fn, params, metrics = ppo.train(
+        environment = env,
+        wrap_env_fn = wrapper.wrap_for_brax_training,
+        randomization_fn = domain_randomize,
+        network_factory = network_factory,
+        seed = seed,
+        progress_fn = progress,
+        save_checkpoint_path = str(output / "checkpoints"),
+        restore_checkpoint_path = str(Path(restore).resolve()) if restore else None, 
+        ** parameters
+        )
     # ===== end TODO =====
     model_io.save_params(str(output / "policy.pkl"), params)
     evaluation_config = default_config()
