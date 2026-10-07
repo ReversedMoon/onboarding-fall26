@@ -90,7 +90,7 @@ class PupJoystick(mjx_env.MjxEnv):
         array45 = jnp.concatenate([gyro, world_down, command, joint_pos, joint_vel, last_act])
         noise = jax.random.uniform(info["rng"], (45,), minval = -1, maxval = 1)
 
-        return array45 + noise * self._noise_scale
+        return array45 + noise * self._noise_scale * self._config.noise_config.level
         # ===== end TODO =====
 
     def _get_termination(self, data: mjx.Data) -> jax.Array:
@@ -158,7 +158,7 @@ class PupJoystick(mjx_env.MjxEnv):
         data = mjx_env.step(self.mjx_model, state.data, motor_targets, self.n_substeps)
         info, contact, first_contact = self._update_feet(data, info)
         done = self._get_termination(data)
-        terms = self._reward_terms(data, done)
+        terms = self._reward_terms(data, action, info, done, first_contact)
         scaled = {k: v * self._config.reward_config.scales[k] for k, v in terms.items()}
         reward = jnp.clip(sum(scaled.values()) * self.dt, 0, 10000) 
         info["last_last_act"] = info["last_act"]

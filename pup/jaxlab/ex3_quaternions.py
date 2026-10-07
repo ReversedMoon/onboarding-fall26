@@ -37,7 +37,7 @@ def quat_rotate(q: jax.Array, v: jax.Array) -> jax.Array:
 def quat_inv(q: jax.Array) -> jax.Array:
     """Return the inverse (4,) of a unit wxyz quaternion (dimensionless)."""
     # ===== TODO(student): Invert a unit quaternion =====
-    return jnp.array(q[0], -q[1], -q[2], -q[3])
+    return jnp.array([q[0], -q[1], -q[2], -q[3]])
     # ===== end TODO =====
 
 

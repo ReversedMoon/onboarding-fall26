@@ -29,8 +29,7 @@ class NumpyPolicy:
     def __init__(self, archive: dict) -> None:
         """Build from the dict of arrays produced by ``pup.train.export``."""
         # ===== TODO(student): Unpack the archive into layers and metadata =====
-        raise NotImplementedError(
-            "Stage 4: Unpack the archive into layers and metadata. See docs/04_training_with_brax.md")
+        
         # ===== end TODO =====
 
     @classmethod
@@ -42,13 +41,11 @@ class NumpyPolicy:
     def __call__(self, obs: np.ndarray) -> np.ndarray:
         """Map a (45,) observation to a (12,) action in [-1, 1], unitless."""
         # ===== TODO(student): Normalize, run the MLP, and squash with tanh =====
-        raise NotImplementedError(
-            "Stage 4: Normalize, run the MLP, and squash with tanh. See docs/04_training_with_brax.md")
+        
         # ===== end TODO =====
 
     def joint_targets(self, obs: np.ndarray) -> np.ndarray:
         """Map a (45,) observation to (12,) joint position targets in rad."""
         # ===== TODO(student): Convert the action into absolute joint targets =====
-        raise NotImplementedError(
-            "Stage 4: Convert the action into absolute joint targets. See docs/04_training_with_brax.md")
+     
         # ===== end TODO =====

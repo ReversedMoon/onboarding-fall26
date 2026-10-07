@@ -59,8 +59,9 @@ def export_policy(params: Any, normalizer_params: Any, out_path: str | Path) -> 
     ``obs_layout``.
     """
     # ===== TODO(student): Walk the Brax parameter tree and serialize it =====
-    raise NotImplementedError(
-        "Stage 4: Walk the Brax parameter tree and serialize it. See docs/04_training_with_brax.md")
+    
+    
+    
     # ===== end TODO =====
 
 

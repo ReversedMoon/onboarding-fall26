@@ -60,8 +60,9 @@ def train(config_name: str = "cpu_smoke", out: str | Path = "runs/smoke",
         print(json.dumps(row), flush=True)
 
     # ===== TODO(student): Wire the environment, wrappers, randomization and PPO networks =====
-    raise NotImplementedError(
-        "Stage 4: Wire the environment, wrappers, randomization and PPO networks. See docs/04_training_with_brax.md")
+    
+    
+    
     # ===== end TODO =====
     model_io.save_params(str(output / "policy.pkl"), params)
     evaluation_config = default_config()
