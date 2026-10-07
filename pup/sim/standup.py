@@ -1,6 +1,6 @@
 """Raise Pup smoothly from crouch before asking it to walk."""
 
-from contextlib import nullcontext
+from contextlib import nullcontext # ??? what is this for
 
 import mujoco
 import numpy as np
@@ -37,11 +37,13 @@ def stand_up(duration_s: float = 3.0, headless: bool = True,
         q_des = (1 - alpha) * q_crouch + alpha * q_home
         data.ctrl[:] = pdc(q, qd, q_des)
         mujoco.mj_step(model,data)
+
         w, x, y, z = data.qpos[3:7]
         roll  = np.arctan2(2 * (w*x + y*z), 1 - 2 * (x*x + y*y))
         max_roll = max(max_roll, abs(roll))
         pitch = np.arcsin(np.clip(2 * (w*y - z*x), -1.0, 1.0))
         max_pitch = max(max_pitch, abs(pitch))
+
         if data.qpos[2] < .12: #if it goes below this it has fallen
             fell = True   
     
