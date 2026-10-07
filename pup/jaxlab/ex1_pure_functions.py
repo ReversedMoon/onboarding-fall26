@@ -29,7 +29,6 @@ def absolute_value(x: jax.Array) -> jax.Array:
     """Return elementwise absolute values, same shape and units as x."""
     # ===== TODO(student): Replace Python branching with array selection =====
     return jnp.where(x < 0, -x, x)
-        "Stage 2: Replace Python branching with array selection. See docs/02_jax_for_robotics.md")
     # ===== end TODO =====
 
 
