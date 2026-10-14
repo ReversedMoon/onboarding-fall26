@@ -30,6 +30,15 @@ class NumpyPolicy:
         """Build from the dict of arrays produced by ``pup.train.export``."""
         # ===== TODO(student): Unpack the archive into layers and metadata =====
         
+        n_layers = int(archive["n_layers"])
+        self.obs_mean = np.asarray(archive["obs_mean"])
+        self.obs_std = np.asarray(archive["obs_std"])
+        self.kernels = [np.asarray(archive[f"kernel_{i}"]) for i in range(n_layers)]
+        self.biases = [np.asarray(archive[f"bias_{i}"]) for i in range(n_layers)]
+        self.action_size = int(archive["action_size"])
+        self.action_scale = float(archive["action_scale"])
+        self.default_pose = np.asarray(archive["default_pose"])
+        self.obs_layout = str(archive["obs_layout"])    
         # ===== end TODO =====
 
     @classmethod
