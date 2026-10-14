@@ -59,9 +59,31 @@ def export_policy(params: Any, normalizer_params: Any, out_path: str | Path) -> 
     ``obs_layout``.
     """
     # ===== TODO(student): Walk the Brax parameter tree and serialize it =====
-    
-    
-    
+    layers = params["params"]
+    names = sorted(layers, key=lambda name: int(name.split("_")[-1]))  
+
+    arrays = {
+        "obs_mean": np.asarray(normalizer_params.mean),
+        "obs_std": np.asarray(normalizer_params.std),
+    }
+    for i, name in enumerate(names):
+        arrays[f"kernel_{i}"] = np.asarray(layers[name]["kernel"])
+        arrays[f"bias_{i}"] = np.asarray(layers[name]["bias"])
+
+    config = default_config()
+    arrays["n_layers"] = np.array(len(names))
+    arrays["obs_size"] = np.array(arrays["obs_mean"].shape[0])
+    arrays["action_size"] = np.array(arrays[f"bias_{len(names) - 1}"].shape[0] // 2)
+    arrays["action_scale"] = np.array(config.action_scale)
+    arrays["default_pose"] = np.asarray(PupJoystick(config)._default_pose)
+    arrays["hidden_activation"] = np.array("swish")
+    arrays["obs_layout"] = np.array(
+        "gyro[0:3] gravity[3:6] command[6:9] joint_pos[9:21] joint_vel[21:33] last_act[33:45]")
+
+    out = Path(out_path).resolve()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(out, **arrays)
+    return out
     # ===== end TODO =====
 
 

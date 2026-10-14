@@ -50,11 +50,15 @@ class NumpyPolicy:
     def __call__(self, obs: np.ndarray) -> np.ndarray:
         """Map a (45,) observation to a (12,) action in [-1, 1], unitless."""
         # ===== TODO(student): Normalize, run the MLP, and squash with tanh =====
-        
+        x = (obs - self.obs_mean) / self.obs_std
+        for kernel, bias in zip(self.kernels[:-1], self.biases[:-1]):
+            x = swish(x @ kernel + bias)
+        logits = x @ self.kernels[-1] + self.biases[-1]      
+        return np.tanh(logits[:self.action_size])
         # ===== end TODO =====
 
     def joint_targets(self, obs: np.ndarray) -> np.ndarray:
         """Map a (45,) observation to (12,) joint position targets in rad."""
         # ===== TODO(student): Convert the action into absolute joint targets =====
-     
+           return self.default_pose + self.action_scale * self(obs)
         # ===== end TODO =====
