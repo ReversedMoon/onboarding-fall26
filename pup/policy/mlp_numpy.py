@@ -45,7 +45,7 @@ class NumpyPolicy:
     def load(cls, path: str | Path) -> "NumpyPolicy":
         """Load a policy exported by ``pup.train.export.export_policy``."""
         with np.load(Path(path), allow_pickle=False) as archive:
-            return cls({key: archive[key] for key in archive.files})
+        return cls({key: archive[key] for key in archive.files})
 
     def __call__(self, obs: np.ndarray) -> np.ndarray:
         """Map a (45,) observation to a (12,) action in [-1, 1], unitless."""
@@ -60,5 +60,5 @@ class NumpyPolicy:
     def joint_targets(self, obs: np.ndarray) -> np.ndarray:
         """Map a (45,) observation to (12,) joint position targets in rad."""
         # ===== TODO(student): Convert the action into absolute joint targets =====
-           return self.default_pose + self.action_scale * self(obs)
+        return self.default_pose + self.action_scale * self(obs)
         # ===== end TODO =====
