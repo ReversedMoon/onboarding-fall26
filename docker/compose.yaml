@@ -14,6 +14,8 @@ services:
     build:
       context: ./ros2
       dockerfile: Dockerfile
+    devices:
+      - /dev/dxg:/dev/dxg
     image: hrc/pup-ros2:jazzy
     # DDS multicast discovery does not work across Docker's default bridge
     # network. host networking is the simplest fix and matches how the club
@@ -22,10 +24,17 @@ services:
     ipc: host
     volumes:
       - ..:/ws
+      - /usr/lib/wsl:/usr/lib/wsl
+      - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+      - /run/desktop/mnt/host/wslg:/mnt/wslg
       # - /tmp/.X11-unix:/tmp/.X11-unix:rw
     environment:
       - ROS_DOMAIN_ID=42
       - PYTHONPATH=/ws
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib
+      - DISPLAY=:0
+      - WAYLAND_DISPLAY=wayland-0
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
       # - DISPLAY=${DISPLAY}
       # - MUJOCO_GL=glx
     working_dir: /ws/ros2_ws

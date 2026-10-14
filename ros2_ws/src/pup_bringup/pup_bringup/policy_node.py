@@ -130,15 +130,14 @@ class PolicyNode(Node):
         """Run one 50 Hz control tick: observe, infer, publish."""
         # ===== TODO(student): Wait for sensors, run the policy, publish the command =====
         if self.joint_state is None or self.imu is None:
-            return                                     
+            return
 
         obs = self._build_observation()
-        action = self.policy(obs)                     
+        action = self.policy(obs)   
 
-        message = JointCommand()
-        message.name = list(JOINT_NAMES)               
+        message = JointCommand()               
         message.position = (self.default_pose + self.policy.action_scale * action).tolist()
-        message.kp = [self.kp] * 12                    
+        message.kp = [self.kp] * 12  
         message.kd = [self.kd] * 12
         self.publisher.publish(message)
 

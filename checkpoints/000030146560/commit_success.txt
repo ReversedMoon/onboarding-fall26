@@ -1,0 +1,1 @@
+Checkpoint commit was successful to /content/drive/MyDrive/pup_runs/colab/checkpoints/000030146560
