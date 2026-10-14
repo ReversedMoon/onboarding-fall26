@@ -1,0 +1,10 @@
+{
+  "config": "t4_fast",
+  "seed": 0,
+  "impl": "jax",
+  "wall_seconds": 725.4568487910001,
+  "devices": [
+    "cuda:0"
+  ],
+  "trained_walking_policy": true
+}

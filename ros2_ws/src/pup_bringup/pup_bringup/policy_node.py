@@ -82,22 +82,19 @@ class PolicyNode(Node):
     def _on_joint_state(self, message: JointState) -> None:
         """Store the most recent JointState (positions rad, velocities rad/s)."""
         # ===== TODO(student): Cache the latest JointState =====
-        raise NotImplementedError(
-            "Stage 5: Cache the latest JointState. See docs/05_ros2_sim2sim.md")
+        self.joint_state = message
         # ===== end TODO =====
 
     def _on_imu(self, message: Imu) -> None:
         """Store the most recent Imu (orientation xyzw, angular velocity rad/s)."""
         # ===== TODO(student): Cache the latest Imu =====
-        raise NotImplementedError(
-            "Stage 5: Cache the latest Imu. See docs/05_ros2_sim2sim.md")
+        self.imu = message
         # ===== end TODO =====
 
     def _on_cmd_vel(self, message: Twist) -> None:
         """Store the latest teleop command as (vx, vy, wz) in m/s, m/s, rad/s."""
         # ===== TODO(student): Cache the latest velocity command =====
-        raise NotImplementedError(
-            "Stage 5: Cache the latest velocity command. See docs/05_ros2_sim2sim.md")
+        self.command = np.array([message.linear.x, message.linear.y, message.angular.z])
         # ===== end TODO =====
 
     def _ordered_joint_state(self) -> tuple[np.ndarray, np.ndarray]:
@@ -115,15 +112,38 @@ class PolicyNode(Node):
         qd (12, rad/s) | last_action (12, unitless).
         """
         # ===== TODO(student): Assemble the 45-dimensional observation =====
-        raise NotImplementedError(
-            "Stage 5: Assemble the 45-dimensional observation. See docs/05_ros2_sim2sim.md")
+        q, qd = self._ordered_joint_state()         
+
+        gyro = np.array([self.imu.angular_velocity.x,
+                 self.imu.angular_velocity.y,
+                 self.imu.angular_velocity.z])
+
+        o = self.imu.orientation                     
+        quat_wxyz = quat_wxyz_from_xyzw(np.array([o.x, o.y, o.z, o.w]))
+        gravity = gravity_in_body_frame(quat_wxyz)
+
+        return np.concatenate([gyro, gravity, self.command,
+                       q - self.default_pose, qd, self.last_action])
         # ===== end TODO =====
 
     def _on_timer(self) -> None:
         """Run one 50 Hz control tick: observe, infer, publish."""
         # ===== TODO(student): Wait for sensors, run the policy, publish the command =====
-        raise NotImplementedError(
-            "Stage 5: Wait for sensors, run the policy, publish the command. See docs/05_ros2_sim2sim.md")
+        if self.joint_state is None or self.imu is None:
+            return                                     
+
+        obs = self._build_observation()
+        action = self.policy(obs)                     
+
+        message = JointCommand()
+        message.name = list(JOINT_NAMES)               
+        message.position = (self.default_pose + self.policy.action_scale * action).tolist()
+        message.kp = [self.kp] * 12                    
+        message.kd = [self.kd] * 12
+        self.publisher.publish(message)
+
+        self.last_action = action
+        self.publish_count += 1
         # ===== end TODO =====
 
     def _log_rate(self) -> None:
