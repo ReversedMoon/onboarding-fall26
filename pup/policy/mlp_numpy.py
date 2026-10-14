@@ -31,6 +31,7 @@ class NumpyPolicy:
         # ===== TODO(student): Unpack the archive into layers and metadata =====
         
         n_layers = int(archive["n_layers"])
+        self.obs_size = int(archive["obs_size"])
         self.obs_mean = np.asarray(archive["obs_mean"])
         self.obs_std = np.asarray(archive["obs_std"])
         self.kernels = [np.asarray(archive[f"kernel_{i}"]) for i in range(n_layers)]
@@ -46,7 +47,7 @@ class NumpyPolicy:
         """Load a policy exported by ``pup.train.export.export_policy``."""
         with np.load(Path(path), allow_pickle=False) as archive:
             return cls({key: archive[key] for key in archive.files})
-    
+
     def __call__(self, obs: np.ndarray) -> np.ndarray:
         """Map a (45,) observation to a (12,) action in [-1, 1], unitless."""
         # ===== TODO(student): Normalize, run the MLP, and squash with tanh =====

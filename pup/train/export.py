@@ -32,6 +32,8 @@ from typing import Any
 import numpy as np
 
 from pup.envs.constants import ACTION_SCALE, DEFAULT_POSE, OBS_LAYOUT
+from pup.envs.config import default_config
+from pup.envs.pup_joystick import PupJoystick
 
 
 def _layer_index(name: str) -> int:
