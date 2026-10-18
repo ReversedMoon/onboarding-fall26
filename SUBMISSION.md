@@ -296,14 +296,14 @@ I used the checkpoint policy for a bit but I got mine to work.
 
 ## Reflection — Stage 5
 
-**List two ways sim2sim can pass while real hardware still fails, and what you
-would add to the sim node to catch each.**
+Real world factors like uneven ground/walls/literally anything would throw the sim off. You could add a check in the sim where it loads a slope/wall/ground with a weird friction amount and have it need the robot to still stand.
+Real sensors could also cause errors because the sim lives in a perfect ideal world but irl sensors can mess up (cus I got them off amazon for 5 dollars) so I would add some tolerance to the checks in-case the sensor is just slightly off.
 
 >
 
 ## What was hardest?
 
-Getting headless:=false to work. I genuinely could not figure out how to fix the GLFW error. The closest I got was a window popping up then instantly closing and crashing. 
+Getting headless:=false to work. I would've submitted this last week if I didnt have the GLFW error I genuinely could not figure out how to fix it. Claude AI clutched up on that one because I had no idea why it was failing. The error message there is literally just "GLFW failed" which does not tell me anything.
 >
 
 ## Time spent
