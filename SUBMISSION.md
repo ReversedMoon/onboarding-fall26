@@ -190,7 +190,7 @@ Did it meet the acceptance criteria (`"walking_passes": true`)? Yes
 ## Stage 5 — sim2sim results
 
 Teleop GIF: 
-![teleopgif](\results\pup_submission.gif)
+![teleopgif](/results/pup_submission.gif)
 
 
 ```json
